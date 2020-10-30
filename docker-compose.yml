@@ -6,6 +6,7 @@ networks:
 
 services:
     php-fpm:
+        container_name: lnmp.php-fpm
         build:
             context: ${PHPFPM_BUILD_PATH}
             args:
@@ -18,6 +19,7 @@ services:
             - backend
 
     mariadb:
+        container_name: lnmp.mariadb
         build:
             context: ${MARIADB_BUILD_PATH}
             args:
@@ -32,6 +34,7 @@ services:
             - backend
 
     nginx:
+        container_name: lnmp.nginx
         build:
             context: ${NGINX_BUILD_PATH}
             args:
