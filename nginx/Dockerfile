@@ -1,8 +1,18 @@
-ARG VERSION
-FROM nginx:${VERSION}
+ARG NGINX_VERSION
+FROM nginx:${NGINX_VERSION}
 
-COPY ./default.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx.conf /etc/nginx
 
-# CMD [ "nginx" ]
+RUN set -xe; \
+    apt-get update; \
+    apt-get install -yqq \
+        curl \
+        openssl; \
+    useradd web-user; \
+    usermod -aG nginx web-user; \
+    newgrp; \
+    rm /etc/nginx/conf.d/default.conf;
 
-# EXPOSE 80 81 443
+ARG NGINX_HOST_HTTP_PORT
+ARG NGINX_HOST_HTTPS_PORT
+EXPOSE ${NGINX_HOST_HTTP_PORT} ${NGINX_HOST_HTTPS_PORT}

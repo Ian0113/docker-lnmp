@@ -1,5 +1,5 @@
-ARG VERSION
-FROM php:${VERSION}-fpm
+ARG PHPFPM_VERSION
+FROM php:${PHPFPM_VERSION}-fpm
 
 RUN set -xe; \
     apt-get update && apt-get upgrade -y; \
@@ -29,8 +29,5 @@ RUN set -xe; \
 
 COPY ./php7.4.ini /usr/local/etc/conf.d/php.ini
 
-WORKDIR /var/www
-
-CMD [ "php-fpm" ]
-
-EXPOSE 9000
+ARG PHPFPM_HOST_PORT
+EXPOSE ${PHPFPM_HOST_PORT}
