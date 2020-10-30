@@ -1,0 +1,8 @@
+### lnmp data
+.lnmp-data/
+
+### web file
+www/*
+
+### test file(php info)
+!www/public
