@@ -4,5 +4,13 @@
 ### web file
 www/*
 
-### test file(php info)
+### web test file
 !www/public
+!www/local.test
+
+### nginx conf
+nginx/sites/*
+
+!nginx/sites/default.conf
+!nginx/sites/local.test.conf
+!nginx/sites/new.conf.exp
