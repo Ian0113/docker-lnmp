@@ -1,35 +1,21 @@
 version: '3'
 
 networks:
-    forontend: 
+    frontend: 
     backend: 
 
 services:
+
     php-fpm:
         container_name: lnmp.php-fpm
         build:
             context: ${PHPFPM_BUILD_PATH}
             args:
                 - PHPFPM_VERSION=${PHPFPM_VERSION}
-                - PHPFPM_HOST_NAME=${PHPFPM_HOST_NAME}
-                - PHPFPM_HOST_PORT=${PHPFPM_HOST_PORT}
         volumes:
             - ${PROJECT_PATH}:/var/www
-        networks:
-            - backend
-
-    mariadb:
-        container_name: lnmp.mariadb
-        build:
-            context: ${MARIADB_BUILD_PATH}
-            args:
-                - MARIADB_VERSION=${MARIADB_VERSION}
-                - MARIADB_HOST_NAME=${MARIADB_HOST_NAME}
-                - MARIADB_HOST_PORT=${MARIADB_HOST_PORT}
-        volumes:
-            - ${DATA_PATH}:/var/lib/mysql
-        environment:
-            - MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+        expose:
+            - ${PHPFPM_EXPOSE}
         networks:
             - backend
 
@@ -39,17 +25,60 @@ services:
             context: ${NGINX_BUILD_PATH}
             args:
                 - NGINX_VERSION=${NGINX_VERSION}
-                - NGINX_HOST_NAME=${NGINX_HOST_NAME}
-                - NGINX_HOST_HTTP_PORT=${NGINX_HOST_HTTP_PORT}
-                - NGINX_HOST_HTTPS_PORT=${NGINX_HOST_HTTPS_PORT}
+                - NGINX_CONN_PHPFPM=${NGINX_CONN_PHPFPM}
+                - NGINX_CONN_PHPFPM_PORT=${NGINX_CONN_PHPFPM_PORT}
         volumes:
             - ${PROJECT_PATH}:/var/www
             - ${NGINX_SITES_PATH}:/etc/nginx/sites
-            - ${NGINX_CONFD_PATH}:/etc/nginx/conf.d
+        expose:
+            - ${NGINX_HTTP_EXPOSE}
+            - ${NGINX_HTTPS_EXPOSE}
         ports:
-            - "${NGINX_HOST_HTTP_PORT}:80"
-            - "${NGINX_HOST_HTTPS_PORT}:443"
-        depends_on:
-            - ${PHPFPM_HOST_NAME}
+            - "${NGINX_HTTP_PORT}:${NGINX_HTTP_EXPOSE}"
+            - "${NGINX_HTTPS_PORT}:${NGINX_HTTPS_EXPOSE}"
         networks:
             - backend
+        depends_on:
+            - ${NGINX_CONN_PHPFPM}
+
+    mariadb:
+        container_name: lnmp.mariadb
+        build:
+            context: ${MARIADB_BUILD_PATH}
+            args:
+                - MARIADB_VERSION=${MARIADB_VERSION}
+        environment:
+            - MYSQL_DATABASE=${MARIADB_DATABASE}
+            - MYSQL_USER=${MARIADB_USER}
+            - MYSQL_PASSWORD=${MARIADB_PASSWORD}
+            - MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+        volumes:
+            - ${DATA_PATH}:/var/lib/mysql
+        expose:
+            - ${MARIADB_EXPOSE}
+        networks:
+            - backend
+
+    phpmyadmin:
+        container_name: lnmp.phpmyadmin
+        build: 
+            context: ${PMA_BUILD_PATH}
+            args:
+                - PMA_VERSION=${PMA_VERSION}
+        environment:
+            # - UPLOAD_LIMIT=
+            - PMA_ARBITRARY=1
+            - PMA_HOST=${PMA_CONN_DB}
+            - PMA_PORT=${MARIADB_EXPOSE}
+            - MYSQL_USER=${MARIADB_USER}
+            - MYSQL_PASSWORD=${MARIADB_PASSWORD}
+            - MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+        expose:
+            - ${PMA_EXPOSE}
+        ports:
+            - "${PMA_HTTP_PORT}:${PMA_EXPOSE}"
+        networks:
+            - frontend
+            - backend
+        depends_on:
+            - ${PMA_CONN_DB}

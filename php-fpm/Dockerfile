@@ -25,9 +25,7 @@ RUN set -xe; \
     docker-php-ext-configure zip; \
     docker-php-ext-install pdo_mysql pdo_pgsql zip; \
     apt-get purge -y --auto-remove; \
-    rm -rf /var/cache/apt/* && rm -rf /var/lib/apt/lists/*;
+    rm -rf /var/cache/apt/* && rm -rf /var/lib/apt/lists/*; \
+    rm -rf /var/www/*;
 
 COPY ./php7.4.ini /usr/local/etc/conf.d/php.ini
-
-ARG PHPFPM_HOST_PORT
-EXPOSE ${PHPFPM_HOST_PORT}
