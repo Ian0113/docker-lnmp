@@ -1,7 +1,16 @@
 server {
 
-    server_name localhost;
-    root /var/www/public;
+    listen 80;
+    listen [::]:80;
+
+    # For https
+    # listen 443 ssl default_server;
+    # listen [::]:443 ssl default_server ipv6only=on;
+    # ssl_certificate /etc/nginx/ssl/default.crt;
+    # ssl_certificate_key /etc/nginx/ssl/default.key;
+
+    server_name local.project;
+    root /var/www/local.project;
     index index.php index.html index.htm;
 
     location / {
